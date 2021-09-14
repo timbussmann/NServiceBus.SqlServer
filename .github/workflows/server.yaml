@@ -21,12 +21,16 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install SQL Server
+        #TODO: investigate caching
         run: choco install sql-server-express
       - name: Setup SQL Server
         run: |
           Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus" -ServerInstance ".\SQLEXPRESS"
           Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus1" -ServerInstance ".\SQLEXPRESS"
           Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus2" -ServerInstance ".\SQLEXPRESS"
+          Invoke-Sqlcmd -Query "CREATE SCHEMA receiver AUTHORIZATION db_owner" -ServerInstance ".\SQLEXPRESS" -Database "nservicebus"
+          Invoke-Sqlcmd -Query "CREATE SCHEMA sender AUTHORIZATION db_owner" -ServerInstance ".\SQLEXPRESS" -Database "nservicebus"
+          Invoke-Sqlcmd -Query "CREATE SCHEMA @db AUTHORIZATION db_owner" -ServerInstance ".\SQLEXPRESS" -Database "nservicebus"
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1.7.2
         with:
