@@ -1,0 +1,41 @@
+name: CI
+on:
+  workflow_dispatch:
+env:
+  DOTNET_NOLOGO: true
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-2019
+            name: Windows
+          #- os: ubuntu-20.04
+          #  name: Linux
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - name: Install SQL Server
+        run: choco install sql-server-express
+      - name: Setup SQL Server
+        run: |
+          Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus" -ServerInstance ".\SQLEXPRESS"
+          Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus1" -ServerInstance ".\SQLEXPRESS"
+          Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus2" -ServerInstance ".\SQLEXPRESS"
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: 5.0.x
+      - name: Setup .NET Core 3.1 runtime
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: 3.1.x
+      - name: Build
+        run: dotnet build src --configuration Release
+      - name: Run tests
+        uses: Particular/run-tests-action@v1.0.0
