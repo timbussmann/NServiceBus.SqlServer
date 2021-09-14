@@ -21,14 +21,14 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install SQL Server (Windows)
-        if: matrix.name == "Windows"
+        if: matrix.name == 'Windows'
         #TODO: investigate caching
         run: |
           choco install sql-server-express
           echo "::set-output name=credentials_args::"
           echo "::set-output name=db_instance::.\SQLEXPRESS"
       - name: Start SQL Server (Linux)
-        if: matrix.name == "Linux"
+        if: matrix.name == 'Linux'
         run: |
           docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=DEVELOPERSdevelopers" -p 1433:1433 mcr.microsoft.com/mssql/server:2019-latest
           echo '::set-output name=credentials_args::-Username "sa" -Password "DEVELOPERSdevelopers"'
