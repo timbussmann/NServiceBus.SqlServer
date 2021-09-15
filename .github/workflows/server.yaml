@@ -37,6 +37,10 @@ jobs:
           echo "::set-output name=db_instance::localhost"
           sleep 10
       - run: |
+          echo "status"
+          docker container ls
+          echo "logs"
+          docker logs sqlserver
           echo "create db"
           docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P DEVELOPERSdevelopers -Q "CREATE DATABASE nservicebus"
           echo "created db"
