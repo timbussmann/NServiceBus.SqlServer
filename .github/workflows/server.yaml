@@ -42,8 +42,10 @@ jobs:
           #Invoke-Sqlcmd -Query "CREATE SCHEMA receiver AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
           #Invoke-Sqlcmd -Query "CREATE SCHEMA sender AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
           #Invoke-Sqlcmd -Query "CREATE SCHEMA db@ AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
+          echo "start setup"
           $db_instance = $steps.server.outputs.db_instance
           $credentials_args = $steps.server.outputs.credentials_args
+          echo "db_instance: $db_instance"
           sqlcmd -Q "CREATE DATABASE nservicebus" -S $db_instance
           sqlcmd -Q "CREATE DATABASE nservicebus1" -S $db_instance
           sqlcmd -Q "CREATE DATABASE nservicebus2" -S $db_instance
