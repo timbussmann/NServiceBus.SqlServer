@@ -31,7 +31,7 @@ jobs:
         id: server
         if: matrix.name == 'Linux'
         run: |
-          docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=DEVELOPERSdevelopers" -p 1433:1433 mcr.microsoft.com/mssql/server:2019-latest
+          docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=DEVELOPERSdevelopers" -p 1433:1433 mcr.microsoft.com/mssql/server:2017-latest
           echo '::set-output name=credentials_args::-U "sa" -P "DEVELOPERSdevelopers"'
           echo "::set-output name=db_instance::localhost"
           sqlcmd -Q "CREATE DATABASE nservicebus" -U sa -P DEVELOPERSdevelopers -S 127.0.0.1
