@@ -33,39 +33,8 @@ jobs:
         run: |
           echo "starting sql server container"
           docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=DEVELOPERS!developers!" -p 1433:1433 --name sqlserver mcr.microsoft.com/mssql/server:2017-latest
-          echo '::set-output name=credentials_args::-U "sa" -P "DEVELOPERS!developers!"'
-          echo "::set-output name=db_instance::localhost"
+          echo "::set-output name=sa_pw::DEVELOPERS!developers!"
           sleep 10
-      - run: |
-          echo "status"
-          docker container ls
-          echo "logs"
-          docker logs sqlserver
-          echo "create db"
-          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P DEVELOPERS!developers! -Q "CREATE DATABASE nservicebus"
-          echo "created db"
-      - name: Setup SQL Server
-        env:
-          SQLCMDUSER: sa
-          SQLCMDPASSWORD: DEVELOPERS!developers!
-          SQLCMDSERVER: "127.0.0.1,1433"
-        run: |
-          #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus" -ServerInstance ".\SQLEXPRESS"
-          #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus1" -ServerInstance ".\SQLEXPRESS"
-          #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus2" -ServerInstance ".\SQLEXPRESS"
-          #Invoke-Sqlcmd -Query "CREATE SCHEMA receiver AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
-          #Invoke-Sqlcmd -Query "CREATE SCHEMA sender AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
-          #Invoke-Sqlcmd -Query "CREATE SCHEMA db@ AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
-          echo "start setup"
-          sqlcmd -Q "CREATE DATABASE nservicebus"
-          sqlcmd -Q "CREATE DATABASE nservicebus1"
-          sqlcmd -Q "CREATE DATABASE nservicebus2"
-          echo "dbs created"
-          sqlcmd -Q "CREATE SCHEMA receiver AUTHORIZATION db_owner" -d "nservicebus"
-          echo "receiver schema created"
-          sqlcmd -Q "CREATE SCHEMA sender AUTHORIZATION db_owner" -d "nservicebus"
-          sqlcmd -Q "CREATE SCHEMA db@ AUTHORIZATION db_owner" -d "nservicebus"
-          echo "schemas created"
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1.7.2
         with:
@@ -76,5 +45,29 @@ jobs:
           dotnet-version: 3.1.x
       - name: Build
         run: dotnet build src --configuration Release
+      - name: Prepare SQL Server
+        env:
+          SQLCMDUSER: sa
+          SQLCMDPASSWORD: ${{ steps.server.outputs.sa_pw }}
+          SQLCMDSERVER: "localhost,1433"
+        run: |
+          #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus" -ServerInstance ".\SQLEXPRESS"
+          #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus1" -ServerInstance ".\SQLEXPRESS"
+          #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus2" -ServerInstance ".\SQLEXPRESS"
+          #Invoke-Sqlcmd -Query "CREATE SCHEMA receiver AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
+          #Invoke-Sqlcmd -Query "CREATE SCHEMA sender AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
+          #Invoke-Sqlcmd -Query "CREATE SCHEMA db@ AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
+          
+          echo "create databases"
+          sqlcmd -Q "CREATE DATABASE nservicebus"
+          sqlcmd -Q "CREATE DATABASE nservicebus1"
+          sqlcmd -Q "CREATE DATABASE nservicebus2"
+          
+          echo "create additional schemas"
+          sqlcmd -Q "CREATE SCHEMA receiver AUTHORIZATION db_owner" -d "nservicebus"
+          sqlcmd -Q "CREATE SCHEMA sender AUTHORIZATION db_owner" -d "nservicebus"
+          sqlcmd -Q "CREATE SCHEMA db@ AUTHORIZATION db_owner" -d "nservicebus"
       - name: Run tests
+        env:
+          SqlServerTransportConnectionString: "Server=localhost;Database=nservicebus;User Id=SA;Password=${{ steps.server.outputs.sa_pw }};"
         uses: Particular/run-tests-action@v1.0.0
