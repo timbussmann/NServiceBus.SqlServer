@@ -45,9 +45,9 @@ jobs:
           echo "start setup"
           db_instance="localhost"
           credentials_args='-U "sa" -P "DEVELOPERSdevelopers"'
-          sqlcmd -Q "CREATE DATABASE nservicebus" -S $db_instance
-          sqlcmd -Q "CREATE DATABASE nservicebus1" -S $db_instance
-          sqlcmd -Q "CREATE DATABASE nservicebus2" -S $db_instance
+          sqlcmd -Q "CREATE DATABASE nservicebus" -S $db_instance $credentials_args
+          sqlcmd -Q "CREATE DATABASE nservicebus1" -S $db_instance $credentials_args
+          sqlcmd -Q "CREATE DATABASE nservicebus2" -S $db_instance $credentials_args
           echo "dbs created"
           sqlcmd -Q "CREATE SCHEMA receiver AUTHORIZATION db_owner" -S $db_instance -d "nservicebus" $credentials_args
           sqlcmd -Q "CREATE SCHEMA sender AUTHORIZATION db_owner" -S $db_instance -d "nservicebus" $credentials_args
