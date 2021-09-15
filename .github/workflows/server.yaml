@@ -34,6 +34,7 @@ jobs:
           docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=DEVELOPERSdevelopers" -p 1433:1433 --name sqlserver mcr.microsoft.com/mssql/server:2017-latest
           echo '::set-output name=credentials_args::-U "sa" -P "DEVELOPERSdevelopers"'
           echo "::set-output name=db_instance::localhost"
+          echo "create db"
           docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P DEVELOPERSdevelopers -Q "CREATE DATABASE nservicebus"
           echo "created db"
           sqlcmd -Q "CREATE DATABASE nservicebus" -U sa -P DEVELOPERSdevelopers -S 127.0.0.1,1433
