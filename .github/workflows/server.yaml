@@ -62,7 +62,8 @@ jobs:
           sqlcmd -Q "CREATE DATABASE nservicebus2"
           echo "dbs created"
           sqlcmd -Q "CREATE SCHEMA receiver AUTHORIZATION db_owner" -d "nservicebus"
-          sqlcmd -Q "CREATE SCHEMA sender AUTHORIZATION db_owner"-d "nservicebus"
+          echo "receiver schema created"
+          sqlcmd -Q "CREATE SCHEMA sender AUTHORIZATION db_owner" -d "nservicebus"
           sqlcmd -Q "CREATE SCHEMA db@ AUTHORIZATION db_owner" -d "nservicebus"
           echo "schemas created"
       - name: Setup .NET SDK
