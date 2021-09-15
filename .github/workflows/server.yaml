@@ -35,6 +35,10 @@ jobs:
           echo '::set-output name=credentials_args::-U "sa" -P "DEVELOPERSdevelopers"'
           echo "::set-output name=db_instance::localhost"
       - name: Setup SQL Server
+        env:
+          SQLCMDUSER: sa
+          SQLCMDPASSWORD: DEVELOPERSdevelopers
+          SQLCMDSERVER: localhost
         run: |
           #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus" -ServerInstance ".\SQLEXPRESS"
           #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus1" -ServerInstance ".\SQLEXPRESS"
@@ -45,13 +49,13 @@ jobs:
           echo "start setup"
           db_instance="localhost"
           credentials_args='-U "sa" -P "DEVELOPERSdevelopers"'
-          sqlcmd -Q "CREATE DATABASE nservicebus" -S $db_instance $credentials_args
-          sqlcmd -Q "CREATE DATABASE nservicebus1" -S $db_instance $credentials_args
-          sqlcmd -Q "CREATE DATABASE nservicebus2" -S $db_instance $credentials_args
+          sqlcmd -Q "CREATE DATABASE nservicebus"
+          sqlcmd -Q "CREATE DATABASE nservicebus1"
+          sqlcmd -Q "CREATE DATABASE nservicebus2"
           echo "dbs created"
-          sqlcmd -Q "CREATE SCHEMA receiver AUTHORIZATION db_owner" -S $db_instance -d "nservicebus" $credentials_args
-          sqlcmd -Q "CREATE SCHEMA sender AUTHORIZATION db_owner" -S $db_instance -d "nservicebus" $credentials_args
-          sqlcmd -Q "CREATE SCHEMA db@ AUTHORIZATION db_owner" -S $db_instance -d "nservicebus" $credentials_args
+          sqlcmd -Q "CREATE SCHEMA receiver AUTHORIZATION db_owner" -d "nservicebus"
+          sqlcmd -Q "CREATE SCHEMA sender AUTHORIZATION db_owner"-d "nservicebus"
+          sqlcmd -Q "CREATE SCHEMA db@ AUTHORIZATION db_owner"-d "nservicebus"
           echo "schemas created"
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1.7.2
