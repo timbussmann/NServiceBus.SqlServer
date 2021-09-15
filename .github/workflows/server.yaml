@@ -39,7 +39,7 @@ jobs:
         env:
           SQLCMDUSER: sa
           SQLCMDPASSWORD: DEVELOPERSdevelopers
-          SQLCMDSERVER: localhost
+          SQLCMDSERVER: 127.0.0.1
         run: |
           #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus" -ServerInstance ".\SQLEXPRESS"
           #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus1" -ServerInstance ".\SQLEXPRESS"
