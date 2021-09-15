@@ -31,16 +31,22 @@ jobs:
         if: matrix.name == 'Linux'
         run: |
           docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=DEVELOPERSdevelopers" -p 1433:1433 mcr.microsoft.com/mssql/server:2019-latest
-          echo '::set-output name=credentials_args::-Username "sa" -Password "DEVELOPERSdevelopers"'
+          echo '::set-output name=credentials_args::-U "sa" -P "DEVELOPERSdevelopers"'
           echo "::set-output name=db_instance::localhost"
       - name: Setup SQL Server
         run: |
-          Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus" -ServerInstance ".\SQLEXPRESS"
-          Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus1" -ServerInstance ".\SQLEXPRESS"
-          Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus2" -ServerInstance ".\SQLEXPRESS"
-          Invoke-Sqlcmd -Query "CREATE SCHEMA receiver AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
-          Invoke-Sqlcmd -Query "CREATE SCHEMA sender AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
-          Invoke-Sqlcmd -Query "CREATE SCHEMA db@ AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
+          #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus" -ServerInstance ".\SQLEXPRESS"
+          #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus1" -ServerInstance ".\SQLEXPRESS"
+          #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus2" -ServerInstance ".\SQLEXPRESS"
+          #Invoke-Sqlcmd -Query "CREATE SCHEMA receiver AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
+          #Invoke-Sqlcmd -Query "CREATE SCHEMA sender AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
+          #Invoke-Sqlcmd -Query "CREATE SCHEMA db@ AUTHORIZATION db_owner" -ServerInstance $db_instance -Database "nservicebus" $credentials_args
+          sqlcmd -Q "CREATE DATABASE nservicebus" -S ".\SQLEXPRESS"
+          sqlcmd -Q "CREATE DATABASE nservicebus1" -S ".\SQLEXPRESS"
+          sqlcmd -Q "CREATE DATABASE nservicebus2" -S ".\SQLEXPRESS"
+          sqlcmd -Q "CREATE SCHEMA receiver AUTHORIZATION db_owner" -S $db_instance -d "nservicebus" $credentials_args
+          sqlcmd -Q "CREATE SCHEMA sender AUTHORIZATION db_owner" -S $db_instance -d "nservicebus" $credentials_args
+          sqlcmd -Q "CREATE SCHEMA db@ AUTHORIZATION db_owner" -S $db_instance -d "nservicebus" $credentials_args
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1.7.2
         with:
