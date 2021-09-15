@@ -32,8 +32,8 @@ jobs:
         if: matrix.name == 'Linux'
         run: |
           echo "starting sql server container"
-          docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=DEVELOPERSdevelopers" -p 1433:1433 --name sqlserver mcr.microsoft.com/mssql/server:2017-latest
-          echo '::set-output name=credentials_args::-U "sa" -P "DEVELOPERSdevelopers"'
+          docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=DEVELOPERS!developers!" -p 1433:1433 --name sqlserver mcr.microsoft.com/mssql/server:2017-latest
+          echo '::set-output name=credentials_args::-U "sa" -P "DEVELOPERS!developers!"'
           echo "::set-output name=db_instance::localhost"
           sleep 10
       - run: |
@@ -42,13 +42,13 @@ jobs:
           echo "logs"
           docker logs sqlserver
           echo "create db"
-          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P DEVELOPERSdevelopers -Q "CREATE DATABASE nservicebus"
+          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P DEVELOPERS!developers! -Q "CREATE DATABASE nservicebus"
           echo "created db"
       - name: Setup SQL Server
         env:
           SQLCMDUSER: sa
-          SQLCMDPASSWORD: DEVELOPERSdevelopers
-          SQLCMDSERVER: "127.0.0.1"
+          SQLCMDPASSWORD: DEVELOPERS!developers!
+          SQLCMDSERVER: "127.0.0.1,1433"
         run: |
           #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus" -ServerInstance ".\SQLEXPRESS"
           #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus1" -ServerInstance ".\SQLEXPRESS"
