@@ -10,8 +10,8 @@ jobs:
     strategy:
       matrix:
         include:
-          #- os: windows-2019
-          #  name: Windows
+          - os: windows-2019
+            name: Windows
           - os: ubuntu-20.04
             name: Linux
       fail-fast: false
@@ -25,16 +25,20 @@ jobs:
         #TODO: investigate caching
         run: |
           choco install sql-server-express
-          echo "::set-output name=credentials_args::"
           echo "::set-output name=db_instance::.\SQLEXPRESS"
+          echo "SQLCMDSERVER=.\SQLEXPRESS" >> $GITHUB_ENV
+          echo "SqlServerTransportConnectionString=Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True" >> $GITHUB_ENV
       - name: Start SQL Server (Linux)
         id: server
         if: matrix.name == 'Linux'
         run: |
           echo "starting sql server container"
-          docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=DEVELOPERS!developers!" -p 1433:1433 --name sqlserver mcr.microsoft.com/mssql/server:2017-latest
-          echo "::set-output name=sa_pw::DEVELOPERS!developers!"
-          sleep 10
+          sa_pw=DEVELOPERS!developers!
+          docker run -d -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$sa_pw" -p 1433:1433 --name sqlserver mcr.microsoft.com/mssql/server:2017-latest
+          echo "SQLCMDPASSWORD=$sa_pw" >> $GITHUB_ENV
+          echo "SQLCMDUSER=sa" >> $GITHUB_ENV
+          echo "SQLCMDSERVER=localhost,1433" >> $GITHUB_ENV
+          echo "SqlServerTransportConnectionString=Server=localhost;Database=nservicebus;User Id=SA;Password=$sa_pw;"
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1.7.2
         with:
@@ -46,11 +50,8 @@ jobs:
       - name: Build
         run: dotnet build src --configuration Release
       - name: Prepare SQL Server
-        env:
-          SQLCMDUSER: sa
-          SQLCMDPASSWORD: ${{ steps.server.outputs.sa_pw }}
-          SQLCMDSERVER: "localhost,1433"
         run: |
+          # run this part later in the job to ensure the DB is up and running
           #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus" -ServerInstance ".\SQLEXPRESS"
           #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus1" -ServerInstance ".\SQLEXPRESS"
           #Invoke-Sqlcmd -Query "CREATE DATABASE nservicebus2" -ServerInstance ".\SQLEXPRESS"
@@ -68,6 +69,4 @@ jobs:
           sqlcmd -Q "CREATE SCHEMA sender AUTHORIZATION db_owner" -d "nservicebus"
           sqlcmd -Q "CREATE SCHEMA db@ AUTHORIZATION db_owner" -d "nservicebus"
       - name: Run tests
-        env:
-          SqlServerTransportConnectionString: "Server=localhost;Database=nservicebus;User Id=SA;Password=${{ steps.server.outputs.sa_pw }};"
         uses: Particular/run-tests-action@v1.0.0
