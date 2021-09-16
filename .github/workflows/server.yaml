@@ -26,7 +26,7 @@ jobs:
         run: |
           choco install sql-server-express
           echo "::set-output name=db_instance::.\SQLEXPRESS"
-          echo "SQLCMDSERVER='.\SQLEXPRESS"' >> $GITHUB_ENV
+          echo "SQLCMDSERVER=.\SQLEXPRESS" >> $GITHUB_ENV
           echo "SqlServerTransportConnectionString=Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       - name: Start SQL Server (Linux)
         id: server
