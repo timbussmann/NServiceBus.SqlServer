@@ -26,8 +26,8 @@ jobs:
         run: |
           choco install sql-server-express
           echo "::set-output name=db_instance::.\SQLEXPRESS"
-          echo "SQLCMDSERVER=.\SQLEXPRESS" >> $GITHUB_ENV
-          echo "SqlServerTransportConnectionString=Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True" >> $GITHUB_ENV
+          echo "SQLCMDSERVER='.\SQLEXPRESS"' >> $GITHUB_ENV
+          echo "SqlServerTransportConnectionString='Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True'" >> $GITHUB_ENV
       - name: Start SQL Server (Linux)
         id: server
         if: matrix.name == 'Linux'
@@ -38,7 +38,7 @@ jobs:
           echo "SQLCMDPASSWORD=$sa_pw" >> $GITHUB_ENV
           echo "SQLCMDUSER=sa" >> $GITHUB_ENV
           echo "SQLCMDSERVER=localhost,1433" >> $GITHUB_ENV
-          echo "SqlServerTransportConnectionString=Server=localhost;Database=nservicebus;User Id=SA;Password=$sa_pw;"
+          echo "SqlServerTransportConnectionString='Server=localhost;Database=nservicebus;User Id=SA;Password=$sa_pw;'" >> $GITHUB_ENV
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v1.7.2
         with:
